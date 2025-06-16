@@ -2,6 +2,9 @@
 
 This Windows PowerShell script automatically checks each Git repository within a specified root directory and notifies you with a Windows toast notification if there are updates on the remote repository.
 
+## Install
+
+Running [set-startup.ps1](./set-startup.ps1) makes shortcut to [check-remote.bat](./check-remote.bat) on Windows startup.
 
 ## Modify if necessary
 
