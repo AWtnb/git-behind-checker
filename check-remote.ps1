@@ -21,29 +21,38 @@ if (-not (Test-Path $reposDir -PathType Container)) {
     exit 1
 }
 
+
 Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     $repoPath = $_.FullName
     $repoName = $_.Name
 
+    $err = [scriptblock]{
+        param(
+            [string]$message
+        )
+        return "[git] {0}:`nERROR! {1}" -f $repoName, $message
+    }
+
     if (Test-Path (Join-Path $repoPath ".git") -PathType Container) {
         Push-Location $repoPath
         try {
-            git fetch --quiet
+            git fetch --quiet 2>$null
+            if ($LASTEXITCODE -ne 0) {
+                throw $err.Invoke("Failed to fetch from remote.")
+            }
             $localBranch = git rev-parse --abbrev-ref HEAD
             $remoteTrackingBranch = git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>$null
-            if ($null -eq $remoteTrackingBranch) {
-                "[git] {0}:`nERROR! Cannot find remote tracking branch corresponds to {1}" -f $repoName, $localBranch | Invoke-Toast
+            if ($null -eq $remoteTrackingBranch -or $LASTEXITCODE -ne 0) {
+                throw $err.Invoke("Cannot find remote tracking branch corresponds to {1}" -f $localBranch)
             }
-            else {
-                $localCommit = git rev-parse $localBranch
-                $remoteCommit = git rev-parse $remoteTrackingBranch
-                if ($localCommit -ne $remoteCommit) {
-                    "[git] {0}:`nBehind to remote branch '{1}'" -f $repoName, $remoteTrackingBranch | Invoke-Toast
-                }
+            $localCommit = git rev-parse $localBranch
+            $remoteCommit = git rev-parse $remoteTrackingBranch
+            if ($localCommit -ne $remoteCommit) {
+                "[git] {0}:`nBehind to remote branch '{1}'" -f $repoName, $remoteTrackingBranch | Invoke-Toast
             }
         }
         catch {
-            "[git] {0}:`nERROR! Something wrong happened during git controll" -f $repoName | Invoke-Toast
+            Invoke-Toast $_
         }
         finally {
             Pop-Location
