@@ -4,7 +4,7 @@ This Windows PowerShell script automatically checks each Git repository within a
 
 ## Install
 
-Running [set-startup.ps1](./set-startup.ps1) makes shortcut to [check-remote.bat](./check-remote.bat) on Windows startup.
+Run [register-task.ps1](./register-task.ps1) to register scheduled task to execute [check-remote.ps1](./check-remote.ps1). Otherwise, run [set-startup.ps1](./set-startup.ps1) to make shortcut to [check-remote.bat](./check-remote.bat) on Windows startup.
 
 ## Modify if necessary
 
