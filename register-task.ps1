@@ -1,10 +1,10 @@
 $src = $PSScriptRoot | Join-Path -ChildPath "check-remote.ps1"
-$action = New-ScheduledTaskAction -Execute powershell.exe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$src`""
+$action = New-ScheduledTaskAction -Execute conhost.exe -Argument "--headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$src`""
 $settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 
 $startupTaskName = "git-remote-check_startup"
 if ($null -ne (Get-ScheduledTask -TaskName $startupTaskName -ErrorAction SilentlyContinue)) {
-    Unregister-ScheduledTask -TaskName $startupTaskName
+    Unregister-ScheduledTask -TaskName $startupTaskName -Confirm:$false
 }
 Register-ScheduledTask -TaskName $startupTaskName `
     -Action $action `
@@ -14,7 +14,7 @@ Register-ScheduledTask -TaskName $startupTaskName `
 
 $dailyTaskName = "git-remote-check_daily"
 if ($null -ne (Get-ScheduledTask -TaskName $dailyTaskName -ErrorAction SilentlyContinue)) {
-    Unregister-ScheduledTask -TaskName $dailyTaskName
+    Unregister-ScheduledTask -TaskName $dailyTaskName -Confirm:$false
 }
 Register-ScheduledTask -TaskName $dailyTaskName `
     -Action $action `
