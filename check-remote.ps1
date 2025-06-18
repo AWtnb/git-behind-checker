@@ -13,14 +13,22 @@ function Invoke-Toast{
     [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId).Show($template);
 }
 
+$toEmoji = [scriptblock]{
+    param (
+        [string]$codepoint
+    )
+    return [System.Char]::ConvertFromUtf32([System.Convert]::toInt32($codepoint, 16))
+}
+
 # Modify if necessary
 $reposDir = $env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"
 
 if (-not (Test-Path $reposDir -PathType Container)) {
-    "ERROR:`nNot found: {0}" -f $reposDir | Invoke-Toast
+    "{0}ERROR:`nNot found: {1}" -f $toEmoji.InvokeReturnAsIs("1F525"), $reposDir | Invoke-Toast
     exit 1
 }
 
+$behind = 0
 
 Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     $repoPath = $_.FullName
@@ -30,7 +38,7 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
         param(
             [string]$message
         )
-        return "[git] {0}:`nERROR! {1}" -f $repoName, $message
+        return "{0} {1} [git]:`nERROR! {2}" -f $toEmoji.InvokeReturnAsIs("1F525"), $repoName, $message
     }
 
     if (Test-Path (Join-Path $repoPath ".git") -PathType Container) {
@@ -38,17 +46,18 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
         try {
             git fetch --quiet 2>$null
             if ($LASTEXITCODE -ne 0) {
-                throw $err.Invoke("Failed to fetch from remote.")
+                throw $err.InvokeReturnAsIs("Failed to fetch from remote.")
             }
             $localBranch = git rev-parse --abbrev-ref HEAD
             $remoteTrackingBranch = git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>$null
             if ($null -eq $remoteTrackingBranch -or $LASTEXITCODE -ne 0) {
-                throw $err.Invoke("Cannot find remote tracking branch corresponds to {1}" -f $localBranch)
+                throw $err.InvokeReturnAsIs("Cannot find remote tracking branch corresponds to {1}" -f $localBranch)
             }
             $localCommit = git rev-parse $localBranch
             $remoteCommit = git rev-parse $remoteTrackingBranch
             if ($localCommit -ne $remoteCommit) {
-                "[git] {0}:`nBehind to remote branch '{1}'" -f $repoName, $remoteTrackingBranch | Invoke-Toast
+                "{0} [git]:`nBehind to remote branch '{1}'" -f $toEmoji.InvokeReturnAsIs("1F9F2"), $repoName, $remoteTrackingBranch | Invoke-Toast
+                $behind += 1
             }
         }
         catch {
@@ -58,4 +67,8 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
             Pop-Location
         }
     }
+}
+
+if ($behind -lt 1) {
+    "{0} [git]:`nAll repos within '{1}' is UP-TO-DATE!" -f $toEmoji.InvokeReturnAsIs("1F38A"), $reposDir | Invoke-Toast
 }
