@@ -29,6 +29,7 @@ if (-not (Test-Path $reposDir -PathType Container)) {
 }
 
 $behind = 0
+$failed = 0
 
 Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     $repoPath = $_.FullName
@@ -61,6 +62,7 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
             }
         }
         catch {
+            $failed += 1
             Invoke-Toast $_
         }
         finally {
@@ -69,6 +71,6 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     }
 }
 
-if ($behind -lt 1) {
+if ($behind -lt 1 -and $failed -lt 1) {
     "{0} [git]:`nAll repos within '{1}' is UP-TO-DATE!" -f $toEmoji.InvokeReturnAsIs("1F38A"), $reposDir | Invoke-Toast
 }
