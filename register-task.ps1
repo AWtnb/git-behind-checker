@@ -4,7 +4,7 @@ $settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontS
 
 $startupTaskName = "git-remote-check_startup"
 $startupTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-$startupTrigger.Delay = [System.Xml.XmlConvert]::ToString((New-TimeSpan -Minutes 60))
+$startupTrigger.Delay = [System.Xml.XmlConvert]::ToString((New-TimeSpan -Minutes 10))
 
 if ($null -ne (Get-ScheduledTask -TaskName $startupTaskName -ErrorAction SilentlyContinue)) {
     Unregister-ScheduledTask -TaskName $startupTaskName -Confirm:$false
