@@ -77,3 +77,5 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
 if ($behind -lt 1 -and $failed -lt 1) {
     "Checked ``{0}``." -f $reposDir | Invoke-Toast -title "All repos are UP-TO-DATE!" -emojiCodepoint "1F38A"
 }
+
+exit 0

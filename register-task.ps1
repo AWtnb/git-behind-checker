@@ -5,7 +5,7 @@ if (-not (Test-Path $appDir -PathType Container)) {
 $src = $PSScriptRoot | Join-Path -ChildPath "check-remote.ps1" | Copy-Item -Destination $appDir -PassThru
 
 $action = New-ScheduledTaskAction -Execute conhost.exe -Argument "--headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$src`""
-$settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+$settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit $(New-TimeSpan -Minutes 5)
 
 $startupTaskName = "git-remote-check_startup"
 $startupTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
