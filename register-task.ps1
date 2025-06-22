@@ -1,4 +1,9 @@
-$src = $PSScriptRoot | Join-Path -ChildPath "check-remote.ps1"
+$appDir = $env:APPDATA | Join-Path -ChildPath $($PSScriptRoot | Split-Path -Leaf)
+if (-not (Test-Path $appDir -PathType Container)) {
+    New-Item -Path $appDir -ItemType Directory > $null
+}
+$src = $PSScriptRoot | Join-Path -ChildPath "check-remote.ps1" | Copy-Item -Destination $appDir -PassThru
+
 $action = New-ScheduledTaskAction -Execute conhost.exe -Argument "--headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$src`""
 $settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 
