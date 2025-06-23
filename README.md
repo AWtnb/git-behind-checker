@@ -2,21 +2,19 @@
 
 This Windows PowerShell script automatically checks each Git repository within a specified root directory and notifies you with a Windows toast notification if there are updates on the remote repository.
 
-### Modify `check-remote.ps1` if necessary
+
+## Install / Uninstall
+
+Before install, modify `$repoDir` in `check-remote.ps1` if necessary. Default is `$env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"`.
 
 ```PowerShell
-$reposDir = $env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo" # Example
+# EXAMPLE
+$reposDir = "C:\Users\YourUsername\Documents\GitHub"
 ```
 
-For instance, if your repositories are in C:\Users\YourUsername\Documents\GitHub, change it to:
+[install.ps1](./install.ps1) copies [check-remote.ps1](./check-remote.ps1) to `$env:AppData\Roaming\git-status-toast` and registers scheduled task to run it on logon and 13:00.
 
-```PowerShell
-$reposDir = "C:\Users\YourUsername\Documents\GitHub".
-```
-
-## Install
-
-[register-task.ps1](./register-task.ps1) copies [check-remote.ps1](./check-remote.ps1) to `$env:AppData\Roaming\git-status-toast` and registers scheduled task to run it on logon and 13:00.
+[uninstall.ps1](./uninstall.ps1) removes all data from PC.
 
 ## Notes
 
