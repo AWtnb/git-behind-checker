@@ -1,3 +1,5 @@
+$taskPath = "\git-remote-check"
+
 $appDir = $env:APPDATA | Join-Path -ChildPath $($PSScriptRoot | Split-Path -Leaf)
 if (-not (Test-Path $appDir -PathType Container)) {
     New-Item -Path $appDir -ItemType Directory > $null
@@ -5,24 +7,24 @@ if (-not (Test-Path $appDir -PathType Container)) {
 $src = $PSScriptRoot | Join-Path -ChildPath "check-remote.ps1" | Copy-Item -Destination $appDir -PassThru
 
 $action = New-ScheduledTaskAction -Execute conhost.exe -Argument "--headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$src`""
-$settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit $(New-TimeSpan -Minutes 5)
+$settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 30)
 
-$startupTaskName = "git-remote-check_startup"
+$startupTaskName = "startup"
 $startupTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-$startupTrigger.Delay = [System.Xml.XmlConvert]::ToString((New-TimeSpan -Minutes 10))
 
 if ($null -ne (Get-ScheduledTask -TaskName $startupTaskName -ErrorAction SilentlyContinue)) {
     Unregister-ScheduledTask -TaskName $startupTaskName -Confirm:$false
 }
 
 Register-ScheduledTask -TaskName $startupTaskName `
+    -TaskPath $taskPath `
     -Action $action `
     -Trigger $startupTrigger `
     -Description "Run git remote branch checker on startup." `
     -Settings $settings
 
 
-$dailyTaskName = "git-remote-check_daily"
+$dailyTaskName = "daily"
 $dailyTrigger = New-ScheduledTaskTrigger -Daily -At "13:00"
 
 if ($null -ne (Get-ScheduledTask -TaskName $dailyTaskName -ErrorAction SilentlyContinue)) {
@@ -30,6 +32,7 @@ if ($null -ne (Get-ScheduledTask -TaskName $dailyTaskName -ErrorAction SilentlyC
 }
 
 Register-ScheduledTask -TaskName $dailyTaskName `
+    -TaskPath $taskPath `
     -Action $action `
     -Trigger $dailyTrigger `
     -Description "Run git remote branch checker on 13:00." `

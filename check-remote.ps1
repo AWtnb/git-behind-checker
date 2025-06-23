@@ -1,5 +1,20 @@
-# Not works on PowerShell 6+.
-# https://qiita.com/relu/items/b7121487a1d5756dfcf9
+<#
+
+Not works on PowerShell 6+.
+
+
+About toast:
+
+- https://qiita.com/relu/items/b7121487a1d5756dfcf9
+
+About Exit:
+
+- https://stackoverflow.com/questions/73584403/
+- https://www.intellilink.co.jp/column/ms/2022/032300.aspx
+- https://www.intellilink.co.jp/column/ms/2022/063000.aspx
+
+#>
+
 
 $xml = @"
 <toast scenario="incomingCall">
@@ -35,7 +50,7 @@ $reposDir = $env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"
 
 if (-not (Test-Path $reposDir -PathType Container)) {
     "``{0}`` not found..." -f $reposDir | Invoke-Toast -title "ERROR!" -emojiCodepoint "1F525"
-    exit 1
+    [System.Environment]::Exit(1)
 }
 
 $behind = 0
@@ -74,8 +89,13 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     }
 }
 
-if ($behind -lt 1 -and $failed -lt 1) {
+if ($failed -gt 0) {
+    [System.Environment]::Exit(1)
+}
+
+
+if ($behind -lt 1) {
     "Checked ``{0}``." -f $reposDir | Invoke-Toast -title "All repos are UP-TO-DATE!" -emojiCodepoint "1F38A"
 }
 
-exit 0
+[System.Environment]::Exit(0)
