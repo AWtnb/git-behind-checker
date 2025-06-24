@@ -20,28 +20,21 @@ $settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontS
 $startupTaskName = $config.TaskName.startup
 $startupTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
 
-if ($null -ne (Get-ScheduledTask -TaskPath $taskPath -TaskName $startupTaskName -ErrorAction SilentlyContinue)) {
-    Unregister-ScheduledTask -TaskPath $taskPath -TaskName $startupTaskName -Confirm:$false
-}
-
 Register-ScheduledTask -TaskName $startupTaskName `
     -TaskPath $taskPath `
     -Action $action `
     -Trigger $startupTrigger `
     -Description "Run git remote branch checker on startup." `
-    -Settings $settings
-
+    -Settings $settings `
+    -Force
 
 $dailyTaskName = $config.taskName.daily
 $dailyTrigger = New-ScheduledTaskTrigger -Daily -At "13:00"
-
-if ($null -ne (Get-ScheduledTask -TaskPath $taskPath -TaskName $dailyTaskName -ErrorAction SilentlyContinue)) {
-    Unregister-ScheduledTask -TaskPath $taskPath -TaskName $dailyTaskName -Confirm:$false
-}
 
 Register-ScheduledTask -TaskName $dailyTaskName `
     -TaskPath $taskPath `
     -Action $action `
     -Trigger $dailyTrigger `
     -Description "Run git remote branch checker on 13:00." `
-    -Settings $settings
+    -Settings $settings `
+    -Force
