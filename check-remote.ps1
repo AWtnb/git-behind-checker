@@ -44,10 +44,12 @@ function Invoke-Toast{
     [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime]::CreateToastNotifier($appId).Show($xmlDoc)
 }
 
+if (($args.Length -lt 1) -or ($args[0].Trim().Length -lt 1)) {
+    "Directory path to check is not specified." -f $reposDir | Invoke-Toast -title "ERROR!" -emojiCodepoint "1F525"
+    [System.Environment]::exit(1)
+}
 
-# Modify if necessary
-$reposDir = $env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"
-
+$reposDir = $args[0].Trim()
 if (-not (Test-Path $reposDir -PathType Container)) {
     "``{0}`` not found..." -f $reposDir | Invoke-Toast -title "ERROR!" -emojiCodepoint "1F525"
     [System.Environment]::Exit(1)
@@ -55,12 +57,14 @@ if (-not (Test-Path $reposDir -PathType Container)) {
 
 $behind = 0
 $failed = 0
+$repoCount = 0
 
 Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     $repoPath = $_.FullName
     $repoName = $_.Name
 
     if (Test-Path (Join-Path $repoPath ".git") -PathType Container) {
+        $repoCount += 1
         Push-Location $repoPath
         try {
             git fetch --quiet 2>$null
@@ -95,7 +99,11 @@ if ($failed -gt 0) {
 
 
 if ($behind -lt 1) {
-    "Checked ``{0}``." -f $reposDir | Invoke-Toast -title "All repos are UP-TO-DATE!" -emojiCodepoint "1F38A"
+    $prefix = "Checked $repoCount repo"
+    if ($repoCount -gt 1) {
+        $prefix += "s"
+    }
+    $prefix + " in ``{0}``." -f $reposDir | Invoke-Toast -title "All repos are UP-TO-DATE!" -emojiCodepoint "1F38A"
 }
 
 [System.Environment]::Exit(0)

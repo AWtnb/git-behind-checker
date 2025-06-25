@@ -14,7 +14,12 @@ if (-not (Test-Path $appDir -PathType Container)) {
 }
 $src = $PSScriptRoot | Join-Path -ChildPath "check-remote.ps1" | Copy-Item -Destination $appDir -PassThru
 
-$action = New-ScheduledTaskAction -Execute conhost.exe -Argument "--headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$src`""
+$checkDir = $env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"
+if (($args.Length -gt 0) -and ($args[0].Trim().Length -gt 0)) {
+    $checkDir = $args[0].Trim()
+}
+
+$action = New-ScheduledTaskAction -Execute conhost.exe -Argument "--headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$src`" `"$checkDir`""
 $settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 30)
 
 $startupTaskName = $config.TaskName.startup

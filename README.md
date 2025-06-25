@@ -5,14 +5,10 @@ This Windows PowerShell script automatically checks each Git repository within a
 
 ## Install / Uninstall
 
-Before install, modify `$repoDir` in `check-remote.ps1` if necessary. Default is `$env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"`.
+Root directory to check can be specified with a commandline argument of [install.ps1](./install.ps1). Default is `$env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"`.
 
-```PowerShell
-# EXAMPLE
-$reposDir = "C:\Users\YourUsername\Documents\GitHub"
-```
-
-[install.ps1](./install.ps1) copies [check-remote.ps1](./check-remote.ps1) to `$env:AppData\Roaming\git-status-toast` and registers scheduled task to run it on logon and 13:00.
+- [check-remote.ps1](./check-remote.ps1) will be copied to `$env:AppData\Roaming\git-status-toast`.
+- Scheduled task to run `check-remote.ps1` on logon and 13:00 will be registered.
 
 [uninstall.ps1](./uninstall.ps1) removes all data from PC.
 
