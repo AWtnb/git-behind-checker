@@ -89,6 +89,7 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
             }
         }
         catch {
+            "==> failed..." | Write-Host -ForegroundColor Magenta
             $failed += [PSCustomObject]@{
                 Message = $_;
                 Repo    = $repoName;
