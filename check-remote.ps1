@@ -55,7 +55,7 @@ if (-not (Test-Path $reposDir -PathType Container)) {
     [System.Environment]::Exit(1)
 }
 
-$behind = 0
+$behind = @()
 $failed = @()
 
 Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
@@ -81,8 +81,8 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
             $localCommit = git rev-parse $localBranch
             $remoteCommit = git rev-parse $remoteTrackingBranch
             if ($localCommit -ne $remoteCommit) {
-                "==> behind to remote branch ``{0}``" -f $remoteTrackingBranch | Write-Host -ForegroundColor Magenta
-                $behind += 1
+                "==> behind to remote branch ``{0}```n" -f $remoteTrackingBranch | Write-Host -ForegroundColor Magenta
+                $behind += $repoName
             }
             else {
                 "==> up-to-date!" | Write-Host
@@ -110,10 +110,8 @@ if ($failed.Count -gt 0) {
 }
 
 
-if ($behind -gt 0) {
-    if ((Read-Host -Prompt "`n----------`nInput 'q' to quit") -ne "q") {
-        [System.Environment]::Exit(1)
-    }
+if ($behind.Count -gt 0) {
+    ($behind | ForEach-Object {"[{0}]" -f $_}) -join ", " | Invoke-Toast -title "Sync required." -emojiCodepoint "1F9F2"
 }
 else {
     "Checked ``{0}``." -f $reposDir | Invoke-Toast -title "All repos are UP-TO-DATE!" -emojiCodepoint "1F38A"
