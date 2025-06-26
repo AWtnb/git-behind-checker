@@ -56,15 +56,17 @@ if (-not (Test-Path $reposDir -PathType Container)) {
 }
 
 $behind = 0
-$failed = 0
-$repoCount = 0
+$failed = @()
 
 Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     $repoPath = $_.FullName
     $repoName = $_.Name
 
     if (Test-Path (Join-Path $repoPath ".git") -PathType Container) {
-        $repoCount += 1
+
+        "Checking " | Write-Host -NoNewline
+        $repoName | Write-Host -ForegroundColor Yellow
+
         Push-Location $repoPath
         try {
             git fetch --quiet 2>$null
@@ -79,13 +81,18 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
             $localCommit = git rev-parse $localBranch
             $remoteCommit = git rev-parse $remoteTrackingBranch
             if ($localCommit -ne $remoteCommit) {
-                "Behind to remote branch ``{0}``" -f $remoteTrackingBranch | Invoke-Toast -title "``$repoName``" -emojiCodepoint "1F9F2"
+                "==> behind to remote branch ``{0}``" -f $remoteTrackingBranch | Write-Host -ForegroundColor Magenta
                 $behind += 1
+            }
+            else {
+                "==> up-to-date!" | Write-Host
             }
         }
         catch {
-            $failed += 1
-            Invoke-Toast -message $_ -title "ERROR! ``$repoName``" -emojiCodepoint "1F525"
+            $failed += [PSCustomObject]@{
+                Message = $_;
+                Repo    = $repoName;
+            }
         }
         finally {
             Pop-Location
@@ -93,17 +100,22 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     }
 }
 
-if ($failed -gt 0) {
+if ($failed.Count -gt 0) {
+    $failed | Group-Object -Property Message | ForEach-Object {
+        $title = "ERROR! {0}" -f $_.Name
+        ($_.Group.Repo | ForEach-Object {"[{0}]" -f $_}) -join ", " | Invoke-Toast -title $title -emojiCodepoint "1F525"
+    }
     [System.Environment]::Exit(1)
 }
 
 
-if ($behind -lt 1) {
-    $prefix = "Checked $repoCount repo"
-    if ($repoCount -gt 1) {
-        $prefix += "s"
+if ($behind -gt 0) {
+    if ((Read-Host -Prompt "`n----------`nInput 'q' to quit") -ne "q") {
+        [System.Environment]::Exit(1)
     }
-    $prefix + " in ``{0}``." -f $reposDir | Invoke-Toast -title "All repos are UP-TO-DATE!" -emojiCodepoint "1F38A"
+}
+else {
+    "Checked ``{0}``." -f $reposDir | Invoke-Toast -title "All repos are UP-TO-DATE!" -emojiCodepoint "1F38A"
 }
 
 [System.Environment]::Exit(0)
