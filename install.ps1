@@ -25,7 +25,8 @@ $settings = New-ScheduledTaskSettingsSet -Hidden `
     -DontStopIfGoingOnBatteries `
     -RestartCount 3 `
     -RestartInterval (New-TimeSpan -Minutes 30) `
-    -RunOnlyIfNetworkAvailable
+    -RunOnlyIfNetworkAvailable `
+    -StartWhenAvailable
 
 $startupTaskName = $config.TaskName.startup
 $startupTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
