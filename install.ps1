@@ -20,7 +20,12 @@ if (($args.Length -gt 0) -and ($args[0].Trim().Length -gt 0)) {
 }
 
 $action = New-ScheduledTaskAction -Execute powershell.exe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$src`" `"$checkDir`""
-$settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 30)
+$settings = New-ScheduledTaskSettingsSet -Hidden `
+    -AllowStartIfOnBatteries `
+    -DontStopIfGoingOnBatteries `
+    -RestartCount 3 `
+    -RestartInterval (New-TimeSpan -Minutes 30) `
+    -RunOnlyIfNetworkAvailable
 
 $startupTaskName = $config.TaskName.startup
 $startupTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
