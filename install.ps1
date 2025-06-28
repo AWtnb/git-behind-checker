@@ -20,32 +20,38 @@ if (($args.Length -gt 0) -and ($args[0].Trim().Length -gt 0)) {
 }
 
 $action = New-ScheduledTaskAction -Execute powershell.exe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$src`" `"$checkDir`""
-$settings = New-ScheduledTaskSettingsSet -Hidden `
-    -AllowStartIfOnBatteries `
-    -DontStopIfGoingOnBatteries `
-    -RestartCount 3 `
-    -RestartInterval (New-TimeSpan -Minutes 30) `
-    -RunOnlyIfNetworkAvailable `
-    -StartWhenAvailable
+$baseSettingParams = @{
+    Hidden                     = $true;
+    AllowStartIfOnBatteries    = $true;
+    DontStopIfGoingOnBatteries = $true;
+    RunOnlyIfNetworkAvailable  = $true;
+    RestartCount               = 2;
+    RestartInterval            = (New-TimeSpan -Minutes 5);
+}
 
 $startupTaskName = $config.TaskName.startup
 $startupTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+$startupTrigger.Delay = [System.Xml.XmlConvert]::ToString((New-TimeSpan -Minutes 5))
+$startupSettingParam = $baseSettingParams.Clone()
+$startupSettingParam["StartWhenAvailable"] = $true
+$startupSetting = New-ScheduledTaskSettingsSet @startupSettingParam
 
 Register-ScheduledTask -TaskName $startupTaskName `
     -TaskPath $taskPath `
     -Action $action `
     -Trigger $startupTrigger `
     -Description "Run git remote branch checker on startup." `
-    -Settings $settings `
+    -Settings $startupSetting `
     -Force
 
 $dailyTaskName = $config.taskName.daily
 $dailyTrigger = New-ScheduledTaskTrigger -Daily -At "13:00"
+$dailySetting = New-ScheduledTaskSettingsSet @baseSettingParams
 
 Register-ScheduledTask -TaskName $dailyTaskName `
     -TaskPath $taskPath `
     -Action $action `
     -Trigger $dailyTrigger `
     -Description "Run git remote branch checker on 13:00." `
-    -Settings $settings `
+    -Settings $dailySetting `
     -Force
