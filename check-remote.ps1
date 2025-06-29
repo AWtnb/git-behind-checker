@@ -65,7 +65,7 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
     if (Test-Path (Join-Path $repoPath ".git") -PathType Container) {
 
         "Checking " | Write-Host -NoNewline
-        $repoName | Write-Host -ForegroundColor Yellow
+        $repoName | Write-Host -BackgroundColor Yellow -ForegroundColor Black
 
         Push-Location $repoPath
         try {
@@ -81,7 +81,7 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
             $localCommit = git rev-parse $localBranch
             $remoteCommit = git rev-parse $remoteTrackingBranch
             if ($localCommit -ne $remoteCommit) {
-                "==> behind to remote branch ``{0}```n" -f $remoteTrackingBranch | Write-Host -ForegroundColor Magenta
+                "==> update available from remote branch ``{0}``!" -f $remoteTrackingBranch | Write-Host -ForegroundColor Cyan
                 $behind += $repoName
             }
             else {
@@ -89,7 +89,7 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
             }
         }
         catch {
-            "==> failed..." | Write-Host -ForegroundColor Magenta
+            "==> failed! {0}" -f $_ | Write-Host -ForegroundColor Magenta
             $failed += [PSCustomObject]@{
                 Message = $_;
                 Repo    = $repoName;
