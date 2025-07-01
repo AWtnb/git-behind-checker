@@ -16,3 +16,7 @@ Root directory to check can be specified with a commandline argument of [install
 
 - Git Installation: Git must be installed on the system running the script, and the git command should be accessible from the command prompt or PowerShell.
 - PowerShell Version: The toast notification function (`Invoke-Toast`) in this script might not work on PowerShell 6.0+ due to changes in how Universal Windows Platform (UWP) APIs are called. It should work without issues on PowerShell 5.1 (which is typically pre-installed on Windows).
+
+### Tips
+
+![img](./windows-setting.png)
