@@ -111,10 +111,10 @@ if ($failed.Count -gt 0) {
 
 
 if ($behind.Count -gt 0) {
-    ($behind | ForEach-Object {"[{0}]" -f $_}) -join ", " | Invoke-Toast -title "Sync required." -emojiCodepoint "1F9F2"
+    ($behind | ForEach-Object {"[{0}]" -f $_}) -join " " | Invoke-Toast -title "Update available!" -emojiCodepoint "1F9F2"
 }
 else {
-    "Checked ``{0}``." -f $reposDir | Invoke-Toast -title "All repos are UP-TO-DATE!" -emojiCodepoint "1F38A"
+    "Checked ``{0}``." -f $reposDir.replace("\", "/") | Invoke-Toast -title "All repos are up-to-date!" -emojiCodepoint "2705"
 }
 
 [System.Environment]::Exit(0)
