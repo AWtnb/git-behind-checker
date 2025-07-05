@@ -73,16 +73,16 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
             if ($LASTEXITCODE -ne 0) {
                 throw "Failed to fetch from remote."
             }
-            $localBranch = git rev-parse --abbrev-ref HEAD
-            $remoteTrackingBranch = git rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>$null
-            if ($null -eq $remoteTrackingBranch -or $LASTEXITCODE -ne 0) {
-                throw "Cannot find remote tracking branch corresponds to {1}" -f $localBranch
+            $status = git status --porcelain --branch 2>$null
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to get status."
             }
-            $localCommit = git rev-parse $localBranch
-            $remoteCommit = git rev-parse $remoteTrackingBranch
-            if ($localCommit -ne $remoteCommit) {
-                "==> update available from remote branch ``{0}``!" -f $remoteTrackingBranch | Write-Host -ForegroundColor Cyan
-                $behind += $repoName
+            if ($status -match "\[behind\s+\d+\]$") {
+                "==> update available: {0}" -f $status | Write-Host -ForegroundColor Cyan
+                $behind += [PSCustomObject]@{
+                    Repo   = $repoName;
+                    Status = $status -replace ".+(\[behind)", '$1';
+                }
             }
             else {
                 "==> up-to-date!" | Write-Host
@@ -111,7 +111,9 @@ if ($failed.Count -gt 0) {
 
 
 if ($behind.Count -gt 0) {
-    ($behind | ForEach-Object {"[{0}]" -f $_}) -join " " | Invoke-Toast -title "Update available!" -emojiCodepoint "1F9F2"
+    ($behind | ForEach-Object {
+        return "``{0}`` {1}" -f $_.Repo, $_.Status
+    }) -join ", " | Invoke-Toast -title "Update available!" -emojiCodepoint "1F9F2"
 }
 else {
     "Checked ``{0}``." -f $reposDir.replace("\", "/") | Invoke-Toast -title "All repos are up-to-date!" -emojiCodepoint "2705"
