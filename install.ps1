@@ -13,6 +13,7 @@ if (-not (Test-Path $appDir -PathType Container)) {
     New-Item -Path $appDir -ItemType Directory > $null
 }
 $src = $PSScriptRoot | Join-Path -ChildPath "check-remote.ps1" | Copy-Item -Destination $appDir -PassThru
+$PSScriptRoot | Join-Path -ChildPath "update-repos.ps1" | Copy-Item -Destination $appDir
 
 $checkDir = $env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"
 if (($args.Length -gt 0) -and ($args[0].Trim().Length -gt 0)) {
