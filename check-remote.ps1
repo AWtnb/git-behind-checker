@@ -31,13 +31,17 @@ function Invoke-Toast{
     param (
         [parameter(ValueFromPipeline = $true)][string]$message,
         [string]$title,
-        [string]$emojiCodepoint = ""
+        [string]$emojiCodepoint = "",
+        [switch]$ephemeral
     )
     if ($emojiCodepoint) {
         $title = $title + " " + [System.Char]::ConvertFromUtf32([System.Convert]::toInt32($emojiCodepoint, 16))
     }
     $xmlDoc = [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime]::New()
     $xmlDoc.loadXml($xml)
+    if ($ephemeral) {
+        $xmlDoc.documentElement.removeAttribute("scenario")
+    }
     $xmlDoc.selectSingleNode('//text[@id="1"]').InnerText = $title
     $xmlDoc.selectSingleNode('//text[@id="2"]').InnerText = $message
     $appId = "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe"
@@ -116,7 +120,7 @@ if ($behind.Count -gt 0) {
     }) -join ", " | Invoke-Toast -title "Update available!" -emojiCodepoint "1F9F2"
 }
 else {
-    "Checked ``{0}``." -f $reposDir.replace("\", "/") | Invoke-Toast -title "All repos are up-to-date!" -emojiCodepoint "2705"
+    "Checked ``{0}``." -f $reposDir.replace("\", "/") | Invoke-Toast -title "All repos are up-to-date!" -emojiCodepoint "2705" -ephemeral
 }
 
 [System.Environment]::Exit(0)
