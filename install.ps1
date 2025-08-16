@@ -32,7 +32,7 @@ $baseSettingParams = @{
 
 $startupTaskName = $config.TaskName.startup
 $startupTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-$startupTrigger.Delay = [System.Xml.XmlConvert]::ToString((New-TimeSpan -Minutes 2))
+$startupTrigger.Delay = [System.Xml.XmlConvert]::ToString((New-TimeSpan -Seconds 30))
 $startupSettingParam = $baseSettingParams.Clone()
 $startupSettingParam["StartWhenAvailable"] = $true
 $startupSetting = New-ScheduledTaskSettingsSet @startupSettingParam
