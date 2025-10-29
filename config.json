@@ -1,5 +1,5 @@
 {
-    "taskPath": "\\Git-behind-checker\\",
+    "taskPath": "Git-behind-checker",
     "taskName": {
         "startup": "startup",
         "daily": "daily"
