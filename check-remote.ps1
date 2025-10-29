@@ -15,6 +15,7 @@ About Exit:
 
 #>
 
+param([parameter(Mandatory)]$reposDir)
 
 $xml = @"
 <toast scenario="incomingCall">
@@ -48,12 +49,11 @@ function Invoke-Toast{
     [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime]::CreateToastNotifier($appId).Show($xmlDoc)
 }
 
-if (($args.Count -lt 1) -or ($args[0].Trim().Length -lt 1)) {
+if (-not $reposDir) {
     "Directory path to check is not specified." -f $reposDir | Invoke-Toast -title "ERROR!" -emojiCodepoint "1F525"
     [System.Environment]::exit(1)
 }
 
-$reposDir = $args[0].Trim()
 if (-not (Test-Path $reposDir -PathType Container)) {
     "``{0}`` not found..." -f $reposDir | Invoke-Toast -title "ERROR!" -emojiCodepoint "1F525"
     [System.Environment]::Exit(1)

@@ -1,3 +1,7 @@
+param(
+    [string]$checkDir = ($env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo")
+)
+
 $config = Get-Content -Path $($PSScriptRoot | Join-Path -ChildPath "config.json") | ConvertFrom-Json
 
 $taskPath = ("\{0}\" -f $config.taskPath) -replace "^\\+", "\" -replace "\\+$", "\"
@@ -8,11 +12,6 @@ if (-not (Test-Path $appDir -PathType Container)) {
 }
 $src = $PSScriptRoot | Join-Path -ChildPath "check-remote.ps1" | Copy-Item -Destination $appDir -PassThru
 $PSScriptRoot | Join-Path -ChildPath "update-repos.ps1" | Copy-Item -Destination $appDir
-
-$checkDir = $env:USERPROFILE | Join-Path -ChildPath "Personal\tools\repo"
-if (($args.Count -gt 0) -and ($args[0].Trim().Length -gt 0)) {
-    $checkDir = $args[0].Trim()
-}
 
 $action = New-ScheduledTaskAction -Execute powershell.exe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$src`" `"$checkDir`""
 $baseSettingParams = @{

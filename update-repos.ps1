@@ -1,7 +1,8 @@
+param(
+    [string][parameter(Mandatory)]$root
+)
+
 function Update-Repositories {
-    param (
-        [parameter(Mandatory)][string]$root
-    )
     Get-ChildItem -Path $root -Directory | Where-Object {
         $p = ($_.FullName | Join-Path -ChildPath ".git")
         return (Test-Path $p -PathType Container)
@@ -23,9 +24,8 @@ function Update-Repositories {
     }
 }
 
-$root = $args[0]
 if ($root -and (Test-Path $root -PathType Container)) {
-    Update-Repositories -root $root
+    Update-Repositories
 }
 else {
     "Usage: update-repos.ps1 <path-to-root-directory>" | Write-Host -ForegroundColor Red
