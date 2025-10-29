@@ -48,7 +48,7 @@ function Invoke-Toast{
     [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime]::CreateToastNotifier($appId).Show($xmlDoc)
 }
 
-if (($args.Length -lt 1) -or ($args[0].Trim().Length -lt 1)) {
+if (($args.Count -lt 1) -or ($args[0].Trim().Length -lt 1)) {
     "Directory path to check is not specified." -f $reposDir | Invoke-Toast -title "ERROR!" -emojiCodepoint "1F525"
     [System.Environment]::exit(1)
 }
