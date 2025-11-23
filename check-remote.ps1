@@ -75,6 +75,7 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
 
         "Checking " | Write-Host -NoNewline
         $repoName | Write-Host -BackgroundColor Yellow -ForegroundColor Black
+        "==> " | Write-Host -NoNewline
 
         Push-Location $repoPath
         try {
@@ -87,18 +88,18 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
                 throw "Failed to get status."
             }
             if ($status -match "\[behind\s+\d+\]$") {
-                "==> update available: {0}" -f $status | Write-Host -ForegroundColor Cyan
+                "update available: {0}" -f $status | Write-Host -ForegroundColor Magenta
                 $behind += [PSCustomObject]@{
                     Repo   = $repoName;
                     Status = $status -replace ".+(\[behind)", '$1';
                 }
             }
             else {
-                "==> up-to-date!" | Write-Host
+                "up-to-date!" | Write-Host -ForegroundColor Cyan
             }
         }
         catch {
-            "==> failed! {0}" -f $_ | Write-Host -ForegroundColor Magenta
+            "failed! {0}" -f $_ | Write-Host -ForegroundColor Magenta
             $failed += [PSCustomObject]@{
                 Message = $_;
                 Repo    = $repoName;
@@ -125,7 +126,11 @@ if ($behind.Count -gt 0) {
     }) -join ", " | Invoke-Toast -title "Update available!" -emojiCodepoint "1F9F2"
 }
 else {
-    "Checked ``{0}``." -f $reposDir.replace("\", "/") | Invoke-Toast -title "All repos are up-to-date!" -emojiCodepoint "2705" -ephemeral
+    "`nAll repos are up-to-date!" | Write-Host -ForegroundColor Black -BackgroundColor White
+    15..1 | ForEach-Object {
+        "`r(close in {0:d2} seconds)" -f $_ | Write-Host -NoNewline
+        Start-Sleep -Seconds 1
+    }
 }
 
 [System.Environment]::Exit(0)
