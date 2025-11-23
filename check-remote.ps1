@@ -128,7 +128,7 @@ if ($behind.Count -gt 0) {
 else {
     "`nAll repos are up-to-date!" | Write-Host -ForegroundColor Black -BackgroundColor White
     15..1 | ForEach-Object {
-        "`r(close in {0:d2} seconds)" -f $_ | Write-Host -NoNewline
+        "`r(close in {0,2} seconds)" -f $_ | Write-Host -NoNewline
         Start-Sleep -Seconds 1
     }
 }
