@@ -59,6 +59,11 @@ if (-not (Test-Path $reposDir -PathType Container)) {
     [System.Environment]::Exit(1)
 }
 
+if (-not (Get-Command git -ErrorAction SilentlyContinue).Source) {
+    "Git not found on this PC." -f $reposDir | Invoke-Toast -title "ERROR!" -emojiCodepoint "1F525"
+    [System.Environment]::exit(1)
+}
+
 $behind = @()
 $failed = @()
 
