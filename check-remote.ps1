@@ -88,7 +88,7 @@ Get-ChildItem -Path $reposDir -Directory | ForEach-Object {
                 throw "Failed to get status."
             }
             if ($status -match "\[behind\s+\d+\]$") {
-                "update available: {0}" -f $status | Write-Host -ForegroundColor Magenta
+                "update available: {0}" -f $status | Write-Host -ForegroundColor Green
                 $behind += [PSCustomObject]@{
                     Repo   = $repoName;
                     Status = $status -replace ".+(\[behind)", '$1';
